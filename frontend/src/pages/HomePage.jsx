@@ -29,8 +29,8 @@ const HomePage = () => {
 				className='p-2 border rounded w-full mb-4'
 			/>
 			<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
-				{videos.map((video) => (
-					<VideoItem key={video.id.videoId} video={video} />
+				{videos.map((video, index) => (
+					<VideoItem key={`${video.id.videoId}_${index}`} video={video} />
 				))}
 			</div>
 		</div>
