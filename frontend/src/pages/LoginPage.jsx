@@ -4,6 +4,7 @@ import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
 import useAuth from '../hooks/useAuth';
 
+// Schema de validação para login
 const loginSchema = Yup.object().shape({
 	email: Yup.string().email('Email inválido').required('Email é obrigatório'),
 	password: Yup.string()
@@ -11,6 +12,7 @@ const loginSchema = Yup.object().shape({
 		.required('Senha é obrigatória'),
 });
 
+// Schema de validação para registro
 const registerSchema = Yup.object().shape({
 	name: Yup.string().required('Nome é obrigatório'),
 	email: Yup.string().email('Email inválido').required('Email é obrigatório'),
@@ -23,14 +25,16 @@ const registerSchema = Yup.object().shape({
 });
 
 const LoginPage = () => {
-	const [isLogin, setIsLogin] = useState(true);
+	const [isLogin, setIsLogin] = useState(true); // Controle do estado de login/registro
 	const { login, register } = useAuth();
 	const navigate = useNavigate();
-	const [error, setError] = useState('');
+	const [error, setError] = useState(''); // Para gerenciar erros globais
 
 	const handleSubmit = async (values, { setSubmitting }) => {
+		setError(''); // Limpa erro anterior ao submeter
 		try {
 			let result;
+			// Realiza login ou registro dependendo do estado
 			if (isLogin) {
 				result = await login(values.email, values.password);
 			} else {
@@ -41,15 +45,16 @@ const LoginPage = () => {
 				});
 			}
 
+			// Se a operação for bem-sucedida, navega para a home
 			if (result.success) {
 				navigate('/');
 			} else {
-				setError(result.error);
+				setError(result.error); // Exibe erro no caso de falha
 			}
 		} catch (err) {
 			setError('Ocorreu um erro. Tente novamente.');
 		} finally {
-			setSubmitting(false);
+			setSubmitting(false); // Finaliza a submissão do formulário
 		}
 	};
 
@@ -59,6 +64,7 @@ const LoginPage = () => {
 				{isLogin ? 'Login' : 'Registro'}
 			</h2>
 
+			{/* Exibe erro global caso exista */}
 			{error && (
 				<div className='bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4'>
 					{error}
@@ -76,6 +82,7 @@ const LoginPage = () => {
 			>
 				{({ errors, touched, isSubmitting }) => (
 					<Form className='space-y-4'>
+						{/* Campo de nome (apenas no registro) */}
 						{!isLogin && (
 							<div>
 								<Field
@@ -90,6 +97,7 @@ const LoginPage = () => {
 							</div>
 						)}
 
+						{/* Campo de email */}
 						<div>
 							<Field
 								name='email'
@@ -102,6 +110,7 @@ const LoginPage = () => {
 							)}
 						</div>
 
+						{/* Campo de senha */}
 						<div>
 							<Field
 								name='password'
@@ -116,6 +125,7 @@ const LoginPage = () => {
 							)}
 						</div>
 
+						{/* Campo de confirmação de senha (apenas no registro) */}
 						{!isLogin && (
 							<div>
 								<Field
@@ -132,6 +142,7 @@ const LoginPage = () => {
 							</div>
 						)}
 
+						{/* Botão de submit */}
 						<button
 							type='submit'
 							disabled={isSubmitting}
@@ -147,6 +158,7 @@ const LoginPage = () => {
 				)}
 			</Formik>
 
+			{/* Alternar entre login e registro */}
 			<div className='mt-4 text-center'>
 				<button
 					onClick={() => setIsLogin(!isLogin)}
