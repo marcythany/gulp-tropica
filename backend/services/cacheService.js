@@ -1,6 +1,6 @@
 const cache = new Map();
 
-const setCache = (key, value, ttl = 3600) => {
+const setCache = (key, value, ttl = process.env.CACHE_TTL || 3600) => {
 	const now = Date.now();
 	const expireAt = now + ttl * 1000;
 	cache.set(key, { value, expireAt });
