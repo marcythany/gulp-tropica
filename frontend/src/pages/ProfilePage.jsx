@@ -53,7 +53,7 @@ const ProfilePage = () => {
 				name: values.name,
 				email: values.email,
 				bio: values.bio,
-				avatarUrl: values.avatarUrl,
+				avatarUrl: values.avatarUrl, // Envia o avatarUrl ao backend
 			};
 
 			if (values.currentPassword && values.newPassword) {
@@ -61,7 +61,7 @@ const ProfilePage = () => {
 				updateData.newPassword = values.newPassword;
 			}
 
-			const result = await updateUserProfile(updateData);
+			const result = await updateUserProfile(updateData); // Aqui você precisa garantir que a função updateUserProfile lide com o envio do avatar.
 
 			if (result.success) {
 				setUpdateSuccess(true);
