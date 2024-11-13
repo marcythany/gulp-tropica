@@ -22,8 +22,10 @@ const VideoItem = ({
 		setIsLoading(true);
 		try {
 			if (isFavorite) {
+				// Remover dos favoritos
 				await removeFromFavorites(video.id.videoId);
 			} else {
+				// Adicionar aos favoritos
 				await addToFavorites({
 					videoId: video.id.videoId,
 					title: video.snippet.title,
