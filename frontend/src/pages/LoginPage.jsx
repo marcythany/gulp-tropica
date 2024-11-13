@@ -72,11 +72,12 @@ const LoginPage = () => {
 			)}
 
 			<Formik
-				initialValues={
-					isLogin
-						? { email: '', password: '' }
-						: { name: '', email: '', password: '', confirmPassword: '' }
-				}
+				initialValues={{
+					email: isLogin ? '' : '', // Definido explicitamente como uma string vazia
+					password: isLogin ? '' : '',
+					name: !isLogin ? '' : '', // Apenas no caso de registro
+					confirmPassword: !isLogin ? '' : '', // Apenas no caso de registro
+				}}
 				validationSchema={isLogin ? loginSchema : registerSchema}
 				onSubmit={handleSubmit}
 			>
