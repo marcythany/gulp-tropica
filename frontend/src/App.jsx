@@ -10,13 +10,19 @@ import PrivateRoute from './components/PrivateRoute';
 const App = () => {
 	return (
 		<AuthProvider>
-			<Router>
+			<Router
+				future={{
+					v7_relativeSplatPath: true,
+				}}
+			>
 				<div className='min-h-screen bg-gray-100'>
 					<Navbar />
 					<main className='container mx-auto py-6 px-4'>
 						<Routes>
 							<Route path='/' element={<HomePage />} />
 							<Route path='/login' element={<LoginPage />} />
+
+							{/* Protegendo as rotas privadas */}
 							<Route
 								path='/profile'
 								element={
