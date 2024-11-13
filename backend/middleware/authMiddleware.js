@@ -2,8 +2,11 @@ import jwt from 'jsonwebtoken';
 
 const authMiddleware = (req, res, next) => {
 	const token = req.header('Authorization')?.split(' ')[1];
+
 	if (!token) {
-		return res.status(401).json({ message: 'Acesso não autorizado' });
+		return res
+			.status(401)
+			.json({ message: 'Acesso não autorizado, token não fornecido.' });
 	}
 
 	try {
@@ -11,6 +14,11 @@ const authMiddleware = (req, res, next) => {
 		req.user = decoded;
 		next();
 	} catch (error) {
+		if (error.name === 'TokenExpiredError') {
+			return res
+				.status(401)
+				.json({ message: 'Token expirado, por favor faça login novamente.' });
+		}
 		res.status(401).json({ message: 'Token inválido' });
 	}
 };
