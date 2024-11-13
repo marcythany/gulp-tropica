@@ -54,9 +54,21 @@ const VideoItem = ({
 		});
 	};
 
+	const redirectToYoutube = () => {
+		window.open(
+			`https://www.youtube.com/watch?v=${video.id.videoId}`,
+			'_blank',
+			'noopener,noreferrer'
+		);
+	};
+
 	return (
 		<div className='bg-white rounded-lg shadow-lg overflow-hidden'>
-			<div className='aspect-w-16 aspect-h-9'>
+			<div
+				className='aspect-w-16 aspect-h-9'
+				onClick={redirectToYoutube}
+				style={{ cursor: 'pointer' }}
+			>
 				<img
 					src={video.snippet.thumbnails.medium.url}
 					alt={video.snippet.title}
@@ -65,7 +77,11 @@ const VideoItem = ({
 			</div>
 
 			<div className='p-4'>
-				<h3 className='text-lg font-semibold line-clamp-2 mb-2'>
+				<h3
+					className='text-lg font-semibold line-clamp-2 mb-2'
+					onClick={redirectToYoutube}
+					style={{ cursor: 'pointer' }}
+				>
 					{video.snippet.title}
 				</h3>
 
