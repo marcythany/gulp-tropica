@@ -1,8 +1,10 @@
 import React, { createContext, useState, useEffect } from 'react';
 import {
-	loginUser,
-	registerUser,
+	login as loginService,
+	register as registerService,
 	updateProfile,
+	getUser,
+	logout as logoutService,
 } from '../services/authService';
 
 export const AuthContext = createContext(null);
@@ -12,47 +14,46 @@ export const AuthProvider = ({ children }) => {
 	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
-		const storedUser = localStorage.getItem('user');
-		const storedToken = localStorage.getItem('token');
-
-		if (storedUser && storedToken) {
-			setUser(JSON.parse(storedUser));
+		// Inicializando o usuário do localStorage
+		const storedUser = getUser();
+		if (storedUser) {
+			setUser(storedUser);
 		}
 		setLoading(false);
 	}, []);
 
 	const login = async (email, password) => {
 		try {
-			const response = await loginUser(email, password);
+			const response = await loginService({ email, password });
 			const { user, token } = response;
 
 			localStorage.setItem('user', JSON.stringify(user));
-			localStorage.setItem('token', token);
+			localStorage.setItem('userToken', token);
 			setUser(user);
 
 			return { success: true };
 		} catch (error) {
 			return {
 				success: false,
-				error: error.response?.data?.message || 'Erro ao fazer login',
+				error: error.message || 'Erro ao fazer login',
 			};
 		}
 	};
 
 	const register = async (userData) => {
 		try {
-			const response = await registerUser(userData);
+			const response = await registerService(userData);
 			const { user, token } = response;
 
 			localStorage.setItem('user', JSON.stringify(user));
-			localStorage.setItem('token', token);
+			localStorage.setItem('userToken', token);
 			setUser(user);
 
 			return { success: true };
 		} catch (error) {
 			return {
 				success: false,
-				error: error.response?.data?.message || 'Erro ao registrar',
+				error: error.message || 'Erro ao registrar',
 			};
 		}
 	};
@@ -67,14 +68,13 @@ export const AuthProvider = ({ children }) => {
 		} catch (error) {
 			return {
 				success: false,
-				error: error.response?.data?.message || 'Erro ao atualizar perfil',
+				error: error.message || 'Erro ao atualizar perfil',
 			};
 		}
 	};
 
 	const logout = () => {
-		localStorage.removeItem('user');
-		localStorage.removeItem('token');
+		logoutService();
 		setUser(null);
 	};
 
