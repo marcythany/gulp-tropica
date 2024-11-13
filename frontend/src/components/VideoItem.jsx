@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { FaHeart, FaShare } from 'react-icons/fa';
 import useAuth from '../hooks/useAuth';
 import { addToFavorites, removeFromFavorites } from '../services/videoService';
+import toast from 'react-hot-toast';
 
 const VideoItem = ({
 	video,
@@ -14,18 +15,21 @@ const VideoItem = ({
 
 	const toggleFavorite = async () => {
 		if (!user) {
-			// Você pode adicionar um toast ou notificação aqui
-			alert('Faça login para favoritar vídeos');
+			toast.warning('Faça login para favoritar vídeos');
 			return;
 		}
 
 		setIsLoading(true);
 		try {
+			const token = localStorage.getItem('userToken');
+			if (!token) {
+				throw new Error('Token não encontrado. Por favor, faça login.');
+			}
+
 			if (isFavorite) {
-				// Remover dos favoritos
 				await removeFromFavorites(video.id.videoId);
+				toast.success('Vídeo removido dos favoritos');
 			} else {
-				// Adicionar aos favoritos
 				await addToFavorites({
 					videoId: video.id.videoId,
 					title: video.snippet.title,
@@ -33,6 +37,7 @@ const VideoItem = ({
 					channelTitle: video.snippet.channelTitle,
 					description: video.snippet.description,
 				});
+				toast.success('Vídeo adicionado aos favoritos');
 			}
 
 			setIsFavorite(!isFavorite);
@@ -41,33 +46,33 @@ const VideoItem = ({
 			}
 		} catch (error) {
 			console.error('Erro ao atualizar favoritos:', error);
-			alert('Erro ao atualizar favoritos');
+			toast.error(error.message || 'Erro ao atualizar favoritos');
 		} finally {
 			setIsLoading(false);
 		}
 	};
 
-	const handleShare = () => {
-		const videoUrl = `https://www.youtube.com/watch?v=${video.id.videoId}`;
-		navigator.clipboard.writeText(videoUrl).then(() => {
-			alert('Link copiado para a área de transferência!');
-		});
+	const handleShare = async () => {
+		try {
+			const videoUrl = `https://www.youtube.com/watch?v=${video.id.videoId}`;
+			await navigator.clipboard.writeText(videoUrl);
+			toast.success('Link copiado para a área de transferência!');
+		} catch (error) {
+			console.error('Erro ao copiar link:', error);
+			toast.error('Erro ao copiar link');
+		}
 	};
 
 	const redirectToYoutube = () => {
-		window.open(
-			`https://www.youtube.com/watch?v=${video.id.videoId}`,
-			'_blank',
-			'noopener,noreferrer'
-		);
+		const videoUrl = `https://www.youtube.com/watch?v=${video.id.videoId}`;
+		window.open(videoUrl, '_blank', 'noopener,noreferrer');
 	};
 
 	return (
 		<div className='bg-white rounded-lg shadow-lg overflow-hidden'>
 			<div
-				className='aspect-w-16 aspect-h-9'
+				className='aspect-w-16 aspect-h-9 cursor-pointer'
 				onClick={redirectToYoutube}
-				style={{ cursor: 'pointer' }}
 			>
 				<img
 					src={video.snippet.thumbnails.medium.url}
@@ -78,9 +83,8 @@ const VideoItem = ({
 
 			<div className='p-4'>
 				<h3
-					className='text-lg font-semibold line-clamp-2 mb-2'
+					className='text-lg font-semibold line-clamp-2 mb-2 cursor-pointer'
 					onClick={redirectToYoutube}
-					style={{ cursor: 'pointer' }}
 				>
 					{video.snippet.title}
 				</h3>
@@ -97,11 +101,11 @@ const VideoItem = ({
 					<button
 						onClick={toggleFavorite}
 						disabled={isLoading}
-						className={`flex items-center space-x-1 px-3 py-1 rounded ${
+						className={`flex items-center space-x-1 px-3 py-1 rounded transition-colors duration-200 ${
 							isFavorite
 								? 'text-red-500 hover:text-red-600'
 								: 'text-gray-500 hover:text-red-500'
-						}`}
+						} ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
 					>
 						<FaHeart
 							className={`text-lg ${isLoading ? 'animate-pulse' : ''}`}
@@ -111,7 +115,7 @@ const VideoItem = ({
 
 					<button
 						onClick={handleShare}
-						className='flex items-center space-x-1 px-3 py-1 rounded text-gray-500 hover:text-blue-500'
+						className='flex items-center space-x-1 px-3 py-1 rounded text-gray-500 hover:text-blue-500 transition-colors duration-200'
 					>
 						<FaShare className='text-lg' />
 						<span>Compartilhar</span>

@@ -53,7 +53,7 @@ const ProfilePage = () => {
 				name: values.name,
 				email: values.email,
 				bio: values.bio,
-				avatarUrl: values.avatarUrl, // Envia o avatarUrl ao backend
+				avatarUrl: values.avatarUrl,
 			};
 
 			if (values.currentPassword && values.newPassword) {
@@ -61,7 +61,7 @@ const ProfilePage = () => {
 				updateData.newPassword = values.newPassword;
 			}
 
-			const result = await updateUserProfile(updateData); // Aqui você precisa garantir que a função updateUserProfile lide com o envio do avatar.
+			const result = await updateUserProfile(updateData);
 
 			if (result.success) {
 				setUpdateSuccess(true);
@@ -256,8 +256,7 @@ const ProfilePage = () => {
 								<button
 									type='submit'
 									disabled={isSubmitting}
-									className='bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 
-                           disabled:opacity-50 disabled:cursor-not-allowed flex items-center'
+									className='bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center'
 								>
 									{isSubmitting && <FaSpinner className='animate-spin mr-2' />}
 									{isSubmitting ? 'Salvando...' : 'Salvar Alterações'}

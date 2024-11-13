@@ -24,7 +24,8 @@ app.use(express.json());
 app.use(
 	cors({
 		origin: `http://localhost:${FRONTEND_PORT}`, // Permite requisições do frontend
-		methods: ['GET', 'POST', 'PUT', 'DELETE'], // Métodos HTTP necessários
+		methods: ['GET', 'POST', 'PUT', 'DELETE'],
+		allowedHeaders: ['Content-Type', 'Authorization'], // Adicione Authorization aqui
 	})
 );
 

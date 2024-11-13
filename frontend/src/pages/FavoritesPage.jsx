@@ -5,20 +5,22 @@ import useAuth from '../hooks/useAuth';
 import { FaSpinner } from 'react-icons/fa';
 
 const FavoritesPage = () => {
-	const [favorites, setFavorites] = useState([]);
+	const [favorites, setFavorites] = useState([]); // Inicializar sempre como um array vazio
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
 	const { user } = useAuth();
 
 	useEffect(() => {
-		fetchFavorites();
-	}, []);
+		if (user) {
+			fetchFavorites();
+		}
+	}, [user]); // Adicionar dependência ao 'user'
 
 	const fetchFavorites = async () => {
 		try {
 			setLoading(true);
 			const response = await getFavorites();
-			setFavorites(response.data);
+			setFavorites(response?.data || []); // Garantir que sempre será um array
 			setError(null);
 		} catch (err) {
 			console.error('Erro ao buscar favoritos:', err);
@@ -56,7 +58,7 @@ const FavoritesPage = () => {
 				<div className='bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded'>
 					{error}
 				</div>
-			) : favorites.length === 0 ? (
+			) : favorites && favorites.length === 0 ? ( // Verificação de 'favorites'
 				<div className='text-center py-12'>
 					<h2 className='text-xl text-gray-600'>
 						Você ainda não tem vídeos favoritos
@@ -67,14 +69,18 @@ const FavoritesPage = () => {
 				</div>
 			) : (
 				<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-					{favorites.map((video) => (
-						<VideoItem
-							key={video.id.videoId}
-							video={video}
-							isFavorite={true}
-							onFavoriteToggle={handleFavoriteToggle}
-						/>
-					))}
+					{favorites?.map(
+						(
+							video // Verificação de 'favorites'
+						) => (
+							<VideoItem
+								key={video.id.videoId}
+								video={video}
+								isFavorite={true}
+								onFavoriteToggle={handleFavoriteToggle}
+							/>
+						)
+					)}
 				</div>
 			)}
 		</div>

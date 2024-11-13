@@ -2,38 +2,40 @@ import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-// Função para registro de novo usuário
+// Função unificada para tratamento de erros
+const handleError = (error, defaultMessage) => {
+	if (error.response && error.response.data) {
+		console.error(defaultMessage, error.response.data);
+		throw new Error(error.response.data.message || defaultMessage);
+	} else {
+		console.error('Erro de rede ou servidor não está respondendo');
+		throw new Error(
+			`${defaultMessage}: Erro de rede ou servidor não está respondendo`
+		);
+	}
+};
+
+// Função para registrar um novo usuário
 export const register = async (userData) => {
 	try {
 		const response = await axios.post(`${API_URL}/auth/register`, userData);
 		return response.data;
 	} catch (error) {
-		if (error.response && error.response.data) {
-			console.error('Erro ao registrar:', error.response.data);
-			throw new Error(error.response.data.message || 'Erro ao registrar');
-		} else {
-			console.error('Erro de rede ou servidor não responde');
-			throw new Error('Erro ao registrar: Rede ou servidor não responde');
-		}
+		handleError(error, 'Erro ao registrar usuário');
 	}
 };
 
-// Função para login de usuário
+// Função para login do usuário
 export const login = async (userData) => {
 	try {
 		const response = await axios.post(`${API_URL}/auth/login`, userData);
 		if (response.data.token) {
 			localStorage.setItem('userToken', response.data.token);
+			localStorage.setItem('user', JSON.stringify(response.data.user)); // Armazena o usuário no localStorage
 		}
 		return response.data;
 	} catch (error) {
-		if (error.response && error.response.data) {
-			console.error('Erro ao fazer login:', error.response.data);
-			throw new Error(error.response.data.message || 'Erro ao fazer login');
-		} else {
-			console.error('Erro de rede ou servidor não responde');
-			throw new Error('Erro ao fazer login: Rede ou servidor não responde');
-		}
+		handleError(error, 'Erro ao fazer login');
 	}
 };
 
@@ -57,24 +59,40 @@ export const updateProfile = async (userData) => {
 				Authorization: `Bearer ${token}`,
 			},
 		});
-		return response.data;
-	} catch (error) {
-		if (error.response && error.response.data) {
-			console.error('Erro ao atualizar perfil:', error.response.data);
-			throw new Error(
-				error.response.data.message || 'Erro ao atualizar perfil'
-			);
-		} else {
-			console.error('Erro de rede ou servidor não responde');
-			throw new Error(
-				'Erro ao atualizar perfil: Rede ou servidor não responde'
-			);
+		const { user, token: newToken } = response.data;
+		if (newToken) {
+			localStorage.setItem('userToken', newToken); // Armazenar o novo token
 		}
+		return { user, token: newToken };
+	} catch (error) {
+		handleError(error, 'Erro ao atualizar perfil');
 	}
 };
 
-// Função para obter dados do usuário logado
+// Função para obter os dados do usuário logado
 export const getUser = () => {
-	const user = localStorage.getItem('user');
-	return user ? JSON.parse(user) : null;
+	try {
+		const user = localStorage.getItem('user');
+
+		if (user !== null) {
+			const parsedUser = JSON.parse(user);
+
+			// Verifica a estrutura esperada do usuário
+			if (parsedUser && typeof parsedUser === 'object' && parsedUser._id) {
+				// Certifique-se de que _id está sendo usado
+				return parsedUser;
+			} else {
+				console.warn('Dados inválidos encontrados no localStorage');
+				localStorage.removeItem('user');
+				return null;
+			}
+		} else {
+			console.warn('Nenhum usuário encontrado no localStorage');
+			return null;
+		}
+	} catch (error) {
+		console.error('Erro ao recuperar os dados do usuário:', error);
+		localStorage.removeItem('user');
+		return null;
+	}
 };

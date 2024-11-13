@@ -8,6 +8,7 @@ const HomePage = () => {
 
 	useEffect(() => {
 		const fetchVideos = async () => {
+			console.log('Tag enviada:', tag);
 			try {
 				const result = await searchVideos(tag);
 				setVideos(result);
