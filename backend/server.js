@@ -14,7 +14,8 @@ dotenv.config();
 connectDB();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
+const FRONTEND_PORT = process.env.FRONTEND_PORT || 5000;
 
 // Middleware para parsing de JSON
 app.use(express.json());
@@ -22,7 +23,7 @@ app.use(express.json());
 // Configuração do CORS
 app.use(
 	cors({
-		origin: 'http://localhost:3000', // Permite requisições do frontend
+		origin: `http://localhost:${FRONTEND_PORT}`, // Permite requisições do frontend
 		methods: ['GET', 'POST', 'PUT', 'DELETE'], // Métodos HTTP necessários
 	})
 );
