@@ -6,7 +6,8 @@ const UserSchema = new mongoose.Schema({
 	password: { type: String, required: true },
 	name: { type: String },
 	bio: { type: String },
-	// Adicione outros campos que desejar
+	avatarUrl: { type: String, default: '' }, // Adicionando o campo avatarUrl
+	// Outros campos podem ser adicionados conforme necessário
 });
 
 UserSchema.methods.validPassword = async function (password) {
